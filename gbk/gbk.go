@@ -107,6 +107,8 @@ func ConvertGB2312(input []byte) (output []byte, err error, ic int, oc int) {
 			gb := int(input[i])<<8 | int(input[i+1])
 			u8, ok := gb2312toutf8[gb]
 			if !ok {
+				i = i + 2
+				continue
 				err = fmt.Errorf("gb2312 has no character %x, at %d.\nnearby input: %s\nnearby output: %s",
 					gb, ilen, nearbygbk(input[0:i], i, 20),
 					nearbyutf8(output[0:olen], olen, 30))
@@ -161,6 +163,8 @@ func ConvertGB2312String(input string) (soutput string, err error, ic int, oc in
 			gb := int(bi)<<8 | int(bii)
 			u8, ok := gb2312toutf8[gb]
 			if !ok {
+				i = i + 2
+				continue
 				err = fmt.Errorf("gb2312 has no character %x, at %d\nnearby input: %s\nnearby output: %s",
 					gb, ilen, nearbygbks(input[0:i], i, 20),
 					nearbyutf8(output[0:olen], olen, 30))
