@@ -1,7 +1,8 @@
-package util
+package log
 
 import (
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,4 +60,58 @@ func NewWriter(name string) (io.WriteCloser, error) {
 	}
 
 	return &Writer{name: today, prefix: prefix, fp: fp}, nil
+}
+
+type Logger struct {
+	logger *log.Logger
+	writer io.WriteCloser
+}
+
+func NewLogger(dir, prefix string, flag int) (*Logger, error) {
+	writer, err := NewWriter(dir)
+	if err != nil {
+		return nil, err
+	}
+	logger := log.New(writer, prefix, flag)
+	return &Logger{logger: logger, writer: writer}, nil
+}
+
+func (this *Logger) Print(v ...interface{}) {
+	this.logger.Print(v...)
+}
+
+func (this *Logger) Printf(str string, v ...interface{}) {
+	this.logger.Printf(str, v...)
+}
+
+func (this *Logger) Error(v ...interface{}) {
+	tmp := make([]interface{}, len(v)+1)
+	tmp[0] = "[ERROR]"
+	copy(tmp[1:], v)
+	this.logger.Print(tmp...)
+}
+
+func (this *Logger) Errorf(str string, v ...interface{}) {
+	str = "[ERROR]" + str
+	this.logger.Printf(str, v...)
+}
+
+func (this *Logger) Fatal(v ...interface{}) {
+	tmp := make([]interface{}, len(v)+1)
+	tmp[0] = "[ERROR]"
+	copy(tmp[1:], v)
+	this.logger.Print(tmp...)
+	os.Exit(1)
+}
+
+func (this *Logger) Fatalf(str string, v ...interface{}) {
+	str = "[ERROR]" + str
+	this.logger.Printf(str, v...)
+	os.Exit(1)
+}
+
+func (this *Logger) Close() {
+	if this.writer != nil {
+		this.writer.Close()
+	}
 }
