@@ -115,3 +115,29 @@ func (this *Logger) Close() {
 		this.writer.Close()
 	}
 }
+
+var DefaultLogger *Logger = &Logger{log.New(os.Stdout, "", log.LstdFlags), os.Stdout}
+
+func Print(v ...interface{}) {
+	DefaultLogger.Print(v...)
+}
+
+func Printf(str string, v ...interface{}) {
+	DefaultLogger.Printf(str, v...)
+}
+
+func Error(v ...interface{}) {
+	DefaultLogger.Error(v...)
+}
+
+func Errorf(str string, v ...interface{}) {
+	DefaultLogger.Errorf(str, v...)
+}
+
+func Fatal(v ...interface{}) {
+	DefaultLogger.Fatal(v...)
+}
+
+func Fatalf(str string, v ...interface{}) {
+	DefaultLogger.Fatalf(str, v...)
+}
