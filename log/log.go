@@ -65,6 +65,7 @@ func NewWriter(name string) (io.WriteCloser, error) {
 type Logger struct {
 	logger *log.Logger
 	writer io.WriteCloser
+	dir    string
 }
 
 func NewLogger(dir, prefix string, flag int) (*Logger, error) {
@@ -73,7 +74,11 @@ func NewLogger(dir, prefix string, flag int) (*Logger, error) {
 		return nil, err
 	}
 	logger := log.New(writer, prefix, flag)
-	return &Logger{logger: logger, writer: writer}, nil
+	return &Logger{logger: logger, writer: writer, dir: dir}, nil
+}
+
+func (this *Logger) GetDir() string {
+	return this.dir
 }
 
 func (this *Logger) Print(v ...interface{}) {
