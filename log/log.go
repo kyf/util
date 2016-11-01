@@ -121,7 +121,7 @@ func (this *Logger) Close() {
 	}
 }
 
-var DefaultLogger *Logger = &Logger{log.New(os.Stdout, "", log.LstdFlags), os.Stdout}
+var DefaultLogger *Logger = &Logger{log.New(os.Stderr, "", log.LstdFlags), os.Stdout, "stdout"}
 
 func Print(v ...interface{}) {
 	DefaultLogger.Print(v...)
