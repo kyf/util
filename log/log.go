@@ -23,6 +23,7 @@ type Writer struct {
 	prefix string
 	fp     *os.File
 	mutex  sync.Mutex
+	action func(string)
 }
 
 func (w *Writer) Write(data []byte) (n int, err error) {
@@ -40,6 +41,9 @@ func (w *Writer) Write(data []byte) (n int, err error) {
 		w.fp = fp
 	}
 
+	if w.action != nil {
+		w.action(string(data))
+	}
 	n, err = w.fp.Write(data)
 	return
 }
@@ -51,7 +55,7 @@ func (w *Writer) Close() (err error) {
 	return
 }
 
-func NewWriter(name string) (io.WriteCloser, error) {
+func NewWriter(name string, action ...func(string)) (io.WriteCloser, error) {
 	prefix := filepath.Dir(name) + "/"
 	today := getTodayLogName(prefix)
 	fp, err := os.OpenFile(today, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -59,7 +63,11 @@ func NewWriter(name string) (io.WriteCloser, error) {
 		return nil, err
 	}
 
-	return &Writer{name: today, prefix: prefix, fp: fp}, nil
+	writer := &Writer{name: today, prefix: prefix, fp: fp}
+	if len(action) > 0 {
+		writer.action = action[0]
+	}
+	return writer, nil
 }
 
 type Logger struct {
@@ -79,6 +87,11 @@ func NewLogger(dir, prefix string, flag int) (*Logger, error) {
 
 func (this *Logger) GetDir() string {
 	return this.dir
+}
+
+func (this *Logger) SetAction(action func(string)) {
+	w := this.writer.(*Writer)
+	w.action = action
 }
 
 func (this *Logger) Print(v ...interface{}) {
